@@ -1,103 +1,74 @@
+
+
+
 "use client"
 import axios from "axios"
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react"
-
-interface taskProps {
-  title: string;
-  description: string
-  status: string;
-  _id: string
-}
+import { useState } from "react"
+import { useRouter } from "next/navigation"
 
 
 
-const Homepage = () => {
+const LoginPage = () => {
+    const [formDData, setFormData ] = useState({
+        email: "",
+        password: "",
+    })
+    const [Loading, setLoading ] = useState(false)
+    const [token, setToken] = useState(null)
+    const router = useRouter()
 
-  const [task, settask ] = useState<taskProps[]>([])
-  const [loading, setLoading] = useState(false)
-  const [statusL, setstatusL] = useState<string | null>(null)
-  const router = useRouter()
-  useEffect(()=>{
-    setLoading(true)
-    const fetchPost = async()=>{
-        await axios.get(`http://localhost:5000/api/v2/tasks/tasks`,{
-          withCredentials: true, 
-        }).then((res)=>{
-          console.log('the res', res)
-            settask(res.data.tasks)
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) =>{
+        e.preventDefault()
+        console.log(formDData)
+        try {
+            setLoading(true)
+            const res = await axios.post(`http://localhost:5000/api/v2/auths/login`, formDData, { withCredentials: true })
+            const token = res.data.token
+            setToken(token)
+            console.log("login token", token)
+            localStorage.setItem('token', token)  
+            router.push("/home")        
+        } catch (error) {
+            console.log('Error during login:', error)
+            return null
+        }finally{
             setLoading(false)
-        }).catch((err)=>{
-            setLoading(false)
-            console.error('Error in fetching posts', err.response.data.message)
-        })
+        }
     }
-    fetchPost()
-
-  }, [])
-
-  const handleStatus =async (id: string) =>{
-      try {
-        setstatusL(id)
-        await axios.put(`http://localhost:5000/api/v2/tasks/task/${id}`,{} ,{withCredentials: true})
-        settask((prev) => prev.map((t)=> (
-          t._id === id ? {...t, status: "completed" } : t
-        )))
-        setstatusL(null)
-      } catch (err) {
-        console.error(err)
-        setstatusL(null)
-      }
-  }
-
-  const handleDelete = async (id: string)=>{
-      try {
-        await axios.delete(`http://localhost:5000/api/v2/tasks/task/${id}`, {withCredentials: true})
-        settask((prev) => prev.filter((p) => p._id !== id))
-      } catch (error) {
-        console.error(error)
-      }
-  }
-
-  if(loading){
-    return(
-      <div className="flex items-center justify-center h-screen">
-        <p className="text-lg font-semibold animate-pulse">Loading...</p>
-      </div>
-    )
-  }
-
 
 
   return (
-    <div className="flex items-center justify-center h-screen">
-      <div className='flex flex-col w-[450px] h-[500px] mx-auto shadow-sm shadow-blue-300 rounded-2xl p-4'>
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="text-2xl font-bold ">Task Manager</h2>
-          <div className="flex gap-3 items-center">
-            <button className="px-2 py-1 text-white bg-blue-400 rounded-md cursor-pointer mt-3 text-sm" onClick={()=> router.push('/form')}>Add</button>
-          </div> 
-        </div>
-        {task.map((t, index)=>(
-          <div className="flex flex-col mb-2" key={index}>
-            <div className="flex flex-col border border-gray-300 px-2 gap-8 py-1 rounded-md ">
-              <div className="flex items-center justify-between">
-                <div className="flex flex-col justify-between">
-                  <h2 className="font-semibold text-sm">{t.title}</h2>
-                  <p className="text-sm justify-center">{t.description}</p>
+    <div className='w-full h-screen flex items-center justify-center overflow-y'>
+        <div className="flex flex-col items-center  justify-center  ">
+                <h2 className="lg:text-[38px] md:text-3xl text-xl text-center font-bold ">Log in to your account</h2>
+                <p className="text-[#737373] text-base mt-3 text-center">Please provide your registered email and password to continue.</p>
+                <div className="flex w-full justify-center items-center flex-col">
+                    <form className="w-full mt-8 lg:mt-14" onSubmit={handleSubmit} >
+                        <div className="w-full flex flex-col justify-between ">
+                            <label className="mb-5 font-semibold">
+                                Email address 
+                            </label>
+                            <input type="email" value={formDData.email} onChange={(e) => setFormData({...formDData, email: e.target.value})} className="border border-black rounded-md w-full p-2 lg:p-4 placeholder:text-sm text-base" required autoComplete="email" placeholder="Enter your email address" />
+                        </div>
+                        <div className="w-full flex flex-col justify-between mt-4">
+                            <label className="mb-5 font-semibold">
+                                Password 
+                            </label>
+                            <input type="password" value={formDData.password} onChange={(e) => setFormData({...formDData, password: e.target.value})} className="border border-black rounded-md w-full p-2 lg:p-4 placeholder:text-sm text-base" required autoComplete="email" placeholder="Enter your password" />
+                        </div>
+                        <div className="flex items-center justify-between gap-3 mt-5">
+                            <div className="flex items-center justify-between gap-3">
+                                <input type="checkbox" name="remember-me" className="cursor-pointer"/>
+                                <label > Remember for 30 days </label>
+                            </div>
+                            <a href="#" className="text-base text-blue-500 underline">Forget password</a>
+                        </div>
+                        <button type="submit" className="px-3 py-2 text-white bg-blue-400 rounded-md w-28 mt-3"> {Loading ? "loading..." : "login"}</button>
+                    </form>
                 </div>
-                <button className="px-2 py-1 text-white bg-red-400 rounded-md cursor-pointer text-sm" onClick={()=> handleDelete(t._id)}>Delete</button>
-              </div>
-              <div className="flex items-center justify-between  gap-3">
-                <p className={`text-sm  ${t.status === "pending" ? "text-red-500" : "text-green-500" }`}>{t.status}</p>
-                <button className="text-sm  bg-green-400 text-white cursor-pointer px-2 py-1 rounded-md" onClick={()=>handleStatus(t._id)} >{statusL === t._id? "loading..." :"Submit"}</button>
-              </div>
             </div>
-          </div>
-        ))}
-      </div>
     </div>
   )
 }
 
-export default Homepage
+export default LoginPage

@@ -17,7 +17,7 @@ const page = () => {
             setLoading(true)
             axios.post(`http://localhost:5000/api/v2/tasks/task`, formData, {withCredentials: true})
             setLoading(false)
-            router.push("/")
+            router.push("/home")
         } catch (error) {
             setLoading(false)
         }
