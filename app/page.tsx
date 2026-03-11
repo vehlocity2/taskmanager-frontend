@@ -12,7 +12,6 @@ const LoginPage = () => {
         password: "",
     })
     const [Loading, setLoading ] = useState(false)
-    const [token, setToken] = useState(null)
     const router = useRouter()
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) =>{
@@ -22,9 +21,7 @@ const LoginPage = () => {
             setLoading(true)
             const res = await axios.post(`${API}/api/v2/auths/login`, formDData, { withCredentials: true })
             const token = res.data.token
-            setToken(token)
             console.log("login token", token)
-            localStorage.setItem('token', token)  
             router.push("/home")        
         } catch (error) {
             console.log('Error during login:', error)
