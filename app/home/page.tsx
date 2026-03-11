@@ -14,7 +14,7 @@ interface taskProps {
 
 
 const Homepage = () => {
-  const getToken = () => localStorage.getItem('token')
+
   const [task, settask ] = useState<taskProps[]>([])
   const [loading, setLoading] = useState(false)
   const [statusL, setstatusL] = useState<string | null>(null)
@@ -23,8 +23,8 @@ const Homepage = () => {
     setLoading(true)
     const fetchPost = async()=>{
         await axios.get(`${API}/api/v2/tasks/tasks`,{
-              headers: { Authorization: `Bearer ${getToken()}` }
-          }).then((res)=>{
+          withCredentials: true, 
+        }).then((res)=>{
           console.log('the res', res)
             settask(res.data.tasks)
             setLoading(false)
@@ -40,9 +40,7 @@ const Homepage = () => {
   const handleStatus =async (id: string) =>{
       try {
         setstatusL(id)
-        await axios.put(`${API}/api/v2/tasks/task/${id}`,{} ,{
-            headers: { Authorization: `Bearer ${getToken()}` }
-        })
+        await axios.put(`${API}/api/v2/tasks/task/${id}`,{} ,{withCredentials: true})
         settask((prev) => prev.map((t)=> (
           t._id === id ? {...t, status: "completed" } : t
         )))
@@ -55,9 +53,7 @@ const Homepage = () => {
 
   const handleDelete = async (id: string)=>{
       try {
-        await axios.delete(`${API}/api/v2/tasks/task/${id}`, {
-    headers: { Authorization: `Bearer ${getToken()}` }
-})
+        await axios.delete(`${API}/api/v2/tasks/task/${id}`, {withCredentials: true})
         settask((prev) => prev.filter((p) => p._id !== id))
       } catch (error) {
         console.error(error)
