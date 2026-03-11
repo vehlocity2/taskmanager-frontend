@@ -1,10 +1,8 @@
-
-
-
 "use client"
 import axios from "axios"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+const API = process.env.NEXT_PUBLIC_API_URL;
 
 
 
@@ -22,7 +20,7 @@ const LoginPage = () => {
         console.log(formDData)
         try {
             setLoading(true)
-            const res = await axios.post(`http://localhost:5000/api/v2/auths/login`, formDData, { withCredentials: true })
+            const res = await axios.post(`${API}/api/v2/auths/login`, formDData, { withCredentials: true })
             const token = res.data.token
             setToken(token)
             console.log("login token", token)

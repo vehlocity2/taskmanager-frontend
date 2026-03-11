@@ -2,6 +2,7 @@
 import axios from "axios"
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react"
+const API = process.env.NEXT_PUBLIC_API_URL;
 
 interface taskProps {
   title: string;
@@ -21,7 +22,7 @@ const Homepage = () => {
   useEffect(()=>{
     setLoading(true)
     const fetchPost = async()=>{
-        await axios.get(`http://localhost:5000/api/v2/tasks/tasks`,{
+        await axios.get(`${API}/api/v2/tasks/tasks`,{
           withCredentials: true, 
         }).then((res)=>{
           console.log('the res', res)
@@ -39,7 +40,7 @@ const Homepage = () => {
   const handleStatus =async (id: string) =>{
       try {
         setstatusL(id)
-        await axios.put(`http://localhost:5000/api/v2/tasks/task/${id}`,{} ,{withCredentials: true})
+        await axios.put(`${API}/api/v2/tasks/task/${id}`,{} ,{withCredentials: true})
         settask((prev) => prev.map((t)=> (
           t._id === id ? {...t, status: "completed" } : t
         )))
@@ -52,7 +53,7 @@ const Homepage = () => {
 
   const handleDelete = async (id: string)=>{
       try {
-        await axios.delete(`http://localhost:5000/api/v2/tasks/task/${id}`, {withCredentials: true})
+        await axios.delete(`${API}/api/v2/tasks/task/${id}`, {withCredentials: true})
         settask((prev) => prev.filter((p) => p._id !== id))
       } catch (error) {
         console.error(error)

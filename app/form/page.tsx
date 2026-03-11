@@ -2,6 +2,8 @@
 import axios from 'axios'
 import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
+const API = process.env.NEXT_PUBLIC_API_URL;
+
 
 const page = () => {
     const [loading, setLoading] = useState(false)
@@ -15,7 +17,7 @@ const page = () => {
         e.preventDefault()
         try {
             setLoading(true)
-            axios.post(`http://localhost:5000/api/v2/tasks/task`, formData, {withCredentials: true})
+        axios.post(`${API}/api/v2/tasks/task`, formData, {withCredentials: true})
             setLoading(false)
             router.push("/home")
         } catch (error) {
