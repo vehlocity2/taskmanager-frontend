@@ -11,13 +11,16 @@ const page = () => {
         title: "",
         description: ""
     })
+    const getToken = () => localStorage.getItem('token')
     const router = useRouter()
 
     const handleTask = (e: React.FormEvent<HTMLFormElement>)=>{
         e.preventDefault()
         try {
             setLoading(true)
-        axios.post(`${API}/api/v2/tasks/task`, formData, {withCredentials: true})
+        axios.post(`${API}/api/v2/tasks/task`, formData, {
+            headers: { Authorization: `Bearer ${getToken()}` }
+        })
             setLoading(false)
             router.push("/home")
         } catch (error) {
